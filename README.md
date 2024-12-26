@@ -8,10 +8,11 @@ The code is specifically for an "Adafruit Feather M4 CAN Express with ATSAME51" 
 [https://www.adafruit.com/product/4759](https://www.adafruit.com/product/4759)
 
 ## Flight controller configuration
-Some configuration needs to be done on the Speedy Bee. I used INAV Configurator to enable MAVLink on the UART1 port. 
+Some configuration needs to be done on the Speedy Bee. I used INAV Configurator version 7.1.2 to enable MAVLink on the UART1 port. 
 I also have a MGLRC GPS (model: M100) connected to the Speedy Bee, which includes a magnetometer for magnetic heading. The GPS is enabled on UART3 under the Sensors column. See image below:
 
-![image](https://github.com/user-attachments/assets/eeb8544e-9333-4013-8634-ee5ad301fd8f)
+![image](https://github.com/user-attachments/assets/11c0cd12-87ae-4637-8880-c8502ce17d73)
+
 
 # Arduino Code (loaded on Adafruit Feather M4 CAN Express board)
 ## Need to know
