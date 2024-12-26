@@ -163,7 +163,10 @@ void setup() {
   Serial.begin(115200); // For debugging on USB
   MAVLINK_SERIAL.begin(115200); // MAVLink Serial Port Speed  (Commonly 57600 for Ardupilot)
   while(!Serial){delay(100);}
-  Serial.println("MAVLink Attitude Listener Started");
+  
+  if (OUTPUT_SERIAL) {
+    Serial.println("MAVLink Attitude Listener Started");
+  }
 
   while (!CAN.begin(250000)) { // start the CAN bus at 250 kbps
     Serial.println("CAN failed to initialize! Will try again in 1 second ...");
