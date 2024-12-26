@@ -1,5 +1,6 @@
 #include <Arduino.h>
 #include <MAVLink.h>
+// #include <Adafruit_NeoPixel.h>
 
 #include <CANSAME5x.h>
 CANSAME5x CAN;
@@ -11,10 +12,16 @@ CANSAME5x CAN;
 #define MAVLINK_SYSTEM_ID 1   // This is the ID for this script
 #define MAVLINK_COMPONENT_ID 1 // Component ID
 
+// NeoPixel stuff
+#define LED_PIN 6
+#define LED_COUNT 1
+
+// Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
 /*************************************/
 /******* Select output type **********/
-bool OUTPUT_SERIAL  = true;  // Output for the Arduino IDE's Serial Monitor - good for debugging
-bool OUTPUT_aEFIS   = false; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
+bool OUTPUT_SERIAL  = false;  // Output for the Arduino IDE's Serial Monitor - good for debugging
+bool OUTPUT_aEFIS   = true; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
 bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format 
 /*************************************/
 /*************************************/
@@ -160,13 +167,22 @@ long getHeadingReciprocal(long heading) {
 
 
 void setup() {
+
   Serial.begin(115200); // For debugging on USB
   MAVLINK_SERIAL.begin(115200); // MAVLink Serial Port Speed  (Commonly 57600 for Ardupilot)
+
   while(!Serial){delay(100);}
   
   if (OUTPUT_SERIAL) {
     Serial.println("MAVLink Attitude Listener Started");
   }
+
+  // strip.begin();  // initialize the strip
+  // strip.show();   // make sure it is visible
+  // strip.clear();  // Initialize all pixels to 'off'
+  // strip.setPixelColor(0, 255, 0, 0);
+  // strip.show();
+  // delay(10);
 
   while (!CAN.begin(250000)) { // start the CAN bus at 250 kbps
     Serial.println("CAN failed to initialize! Will try again in 1 second ...");
@@ -183,8 +199,11 @@ void setup() {
 
 void loop() {
   handleMavlinkMessage();
+  // strip.setPixelColor(0, 255, 0, 0);
+  // strip.show();
+  // delay(10);
 
-  delay(3); //Small delay for loop rate
+  // delay(3); //Small delay for loop rate
 }
 
 
