@@ -13,15 +13,15 @@ CANSAME5x CAN;
 #define MAVLINK_COMPONENT_ID 1 // Component ID
 
 // NeoPixel stuff
-#define LED_PIN 6
-#define LED_COUNT 1
+// #define LED_PIN 6
+// #define LED_COUNT 1
 
 // Adafruit_NeoPixel strip = Adafruit_NeoPixel(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 /*************************************/
 /******* Select output type **********/
-bool OUTPUT_SERIAL  = false;  // Output for the Arduino IDE's Serial Monitor - good for debugging
-bool OUTPUT_aEFIS   = true; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
+bool OUTPUT_SERIAL  = true;  // Output for the Arduino IDE's Serial Monitor - good for debugging
+bool OUTPUT_aEFIS   = false; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
 bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format 
 /*************************************/
 /*************************************/
@@ -105,11 +105,7 @@ void handleMavlinkMessage() {
         Serial.print("pitch:"); Serial.print(lngPitch);
         Serial.print(",roll:"); Serial.print(lngRoll);
         Serial.print(",heading:");Serial.println(lngGlobalHeading);
-        
-        
-        // Serial.print(",lngHeading:");Serial.print(lngHeading);
-        // Serial.print(",lngPitch:"); Serial.print(lngPitch);
-        // Serial.print(",lngRoll:"); Serial.println(lngRoll);
+
       }
 
       if (OUTPUT_aEFIS) {
@@ -138,7 +134,7 @@ void sendCanMessage(int messageType, int data) {
   }
 
   CAN.endPacket();
-
+  
 }
 
 // void send_canfix_frame_to_serial(CanFixFrame frame) {
@@ -168,13 +164,31 @@ long getHeadingReciprocal(long heading) {
 
 void setup() {
 
-  Serial.begin(115200); // For debugging on USB
-  MAVLINK_SERIAL.begin(115200); // MAVLink Serial Port Speed  (Commonly 57600 for Ardupilot)
-
-  while(!Serial){delay(100);}
   
+
   if (OUTPUT_SERIAL) {
-    Serial.println("MAVLink Attitude Listener Started");
+    // For debugging on USB
+    Serial.begin(115200);
+    delay(1000);
+    if (!Serial){
+      // it's probably not starting, so don't try to send any messages over the Serial port anymore
+      OUTPUT_SERIAL = false;
+    } else {
+      Serial.println ("Serial Started ...");
+    }
+  }
+  delay(100);
+
+  MAVLINK_SERIAL.begin(115200); // MAVLink Serial Port Speed  (Commonly 57600 for Ardupilot)
+  delay(100);
+  if (!MAVLINK_SERIAL) {
+    if (OUTPUT_SERIAL) {
+      Serial.println("Error starting MAVLink ... continuing");
+    }
+  } else {
+    if (OUTPUT_SERIAL) {
+      Serial.println("MAVLink Attitude Listener Started");
+    }
   }
 
   // strip.begin();  // initialize the strip
@@ -184,16 +198,26 @@ void setup() {
   // strip.show();
   // delay(10);
 
-  while (!CAN.begin(250000)) { // start the CAN bus at 250 kbps
-    Serial.println("CAN failed to initialize! Will try again in 1 second ...");
-    delay(1000);
-  }
+  if (OUTPUT_CAN) {
+    pinMode(PIN_CAN_STANDBY, OUTPUT);
+    digitalWrite(PIN_CAN_STANDBY, false);
+    pinMode(PIN_CAN_BOOSTEN, OUTPUT);
+    digitalWrite(PIN_CAN_BOOSTEN, true);
 
-  if (OUTPUT_SERIAL) {
-    Serial.println("CAN started!");
+    while (!CAN.begin(250000)) { // start the CAN bus at 250 kbps
+      if (OUTPUT_SERIAL) {
+        Serial.println("CAN failed to initialize! Will try again in 1 second ...");
+        delay(1000);
+      }
+    }
+
+    if (OUTPUT_SERIAL) {
+      Serial.println("CAN started!");
+    }
+
   }
   
-  delay(1000);
+  delay(500);
 }
 
 
