@@ -179,6 +179,9 @@ void setup() {
   }
   delay(100);
 
+  // Set up the connection from the Adafruit board to the Speedy Bee over Rx/Tx lines
+  // Note: whichever UART port you're using on the Speedy Bee has to be configured to
+  //        output MAVLink data or this entire project is basically useless
   MAVLINK_SERIAL.begin(115200); // MAVLink Serial Port Speed  (Commonly 57600 for Ardupilot)
   delay(100);
   if (!MAVLINK_SERIAL) {
@@ -191,6 +194,7 @@ void setup() {
     }
   }
 
+  // From when I was playing around with NeoPixel stuff
   // strip.begin();  // initialize the strip
   // strip.show();   // make sure it is visible
   // strip.clear();  // Initialize all pixels to 'off'
@@ -223,11 +227,13 @@ void setup() {
 
 void loop() {
   handleMavlinkMessage();
+
+  // More NeoPixel stuff
   // strip.setPixelColor(0, 255, 0, 0);
   // strip.show();
   // delay(10);
 
-  // delay(3); //Small delay for loop rate
+  //delay(3); //Small delay for loop rate
 }
 
 
