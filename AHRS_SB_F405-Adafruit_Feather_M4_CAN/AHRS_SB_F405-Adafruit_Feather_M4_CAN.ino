@@ -92,7 +92,7 @@ void handleMavlinkMessage() {
       lngPitch = pitch * 100;
       lngRoll = roll * 100;
       lngGlobalHeading = getHeadingReciprocal( yaw * 10 );
-      //long lngGlobalHeading = yaw * 10;
+      // long lngGlobalHeading = yaw * 10;
 
       if (OUTPUT_CAN) {
         sendCanMessage(FIX_PITCH, lngPitch);
@@ -157,7 +157,8 @@ void send_canfix_frame_to_aefis(int messageType, long data) {
 }
 
 long getHeadingReciprocal(long heading) {
-  long reciprocal = (heading + 1800) % 3600;
+  // long reciprocal = (heading + 1800) % 3600;
+  long reciprocal = (heading + 3600) % 3600;
   return reciprocal;
 }
 
