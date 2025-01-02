@@ -20,8 +20,8 @@ CANSAME5x CAN;
 
 /*************************************/
 /******* Select output type **********/
-bool OUTPUT_SERIAL  = true;  // Output for the Arduino IDE's Serial Monitor - good for debugging
-bool OUTPUT_aEFIS   = false; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
+bool OUTPUT_SERIAL  = false;  // Output for the Arduino IDE's Serial Monitor - good for debugging
+bool OUTPUT_aEFIS   = true; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
 bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format 
 /*************************************/
 /*************************************/
@@ -164,9 +164,8 @@ long getHeadingReciprocal(long heading) {
 
 
 void setup() {
-
-  
-
+  // Prepare the USB port on the Adafruit board for use with either the
+  // Arduino IDE or the aEFIS Android app, but not both.
   if (OUTPUT_SERIAL) {
     // For debugging on USB
     Serial.begin(115200);
@@ -177,8 +176,16 @@ void setup() {
     } else {
       Serial.println ("Serial Started ...");
     }
+    delay(100);
+  } else if (OUTPUT_aEFIS) {
+    // For debugging on USB
+    Serial.begin(115200);
+    delay(1000);
+    while (!Serial) {
+      delay(100);
+    }
   }
-  delay(100);
+
 
   // Set up the connection from the Adafruit board to the Speedy Bee over Rx/Tx lines
   // Note: whichever UART port you're using on the Speedy Bee has to be configured to
