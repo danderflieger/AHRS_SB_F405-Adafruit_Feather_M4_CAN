@@ -4,7 +4,7 @@
 Connects to a "Speedy Bee F405 Wing APP" radio controlled Airplane flight controller to collect AHRS data:  
 [https://www.speedybee.com/speedybee-f405-wing-app-fixed-wing-flight-controller/](https://www.speedybee.com/speedybee-f405-wing-app-fixed-wing-flight-controller/)
 
-The code is specifically for an "Adafruit Feather M4 CAN Express with ATSAME51" board, which has a built-in CAN transceiver and a beefy Cortex M4 chip (which does floating point math):  
+The code is specifically for an "Adafruit Feather M4 CAN Express with ATSAME51" board, which has a built-in CAN transceiver and a beefy Cortex M4 chip:  
 [https://www.adafruit.com/product/4759](https://www.adafruit.com/product/4759)
 
 ## Flight controller configuration
