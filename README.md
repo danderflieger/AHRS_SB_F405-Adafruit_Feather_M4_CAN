@@ -32,6 +32,7 @@ The circuit board lists the various connections that go into the terminal blocks
 ![PXL_20250222_134858510](https://github.com/user-attachments/assets/d19454a8-f472-42db-ab58-b725b5b96f62)
 ![PXL_20250222_134909562](https://github.com/user-attachments/assets/22c4abb7-ffc2-4c0b-bf04-01ef836c1d2b)
 ![PXL_20250222_134933491](https://github.com/user-attachments/assets/8207cdc5-3aff-4d63-bc1c-6408082a8326)
+![PXL_20250222_135404890](https://github.com/user-attachments/assets/cfb983e4-22f2-4026-bb81-726ff9b1314c)
 
 
 # Arduino Code (loaded on Adafruit Feather M4 CAN Express board)
