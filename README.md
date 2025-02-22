@@ -15,7 +15,11 @@ I also have a MGLRC GPS (model: M100) connected to the Speedy Bee, which include
 
 
 # Wiring
-The circuit board lists the various connections that go into the terminal blocks. There are six connections:
+Ensure the buck converter is configured for 5V to 5.1V output or you will likely fry your boards.
+
+The PCB carrier board lists the various connections that go into the terminal blocks, as well as the locations/orientations for the other boards that connect to it. 
+
+There are six terminal block connections and the PCB lists what goes where:
 - F405 Power
   - V+: I used a 90 degree USB-C power cable to plug into the SpeedyBee programming board. The positive wire goes here
   - GND: the negative USB-C power cable goes here to feed ground to the SpeedyBee
@@ -26,7 +30,7 @@ The circuit board lists the various connections that go into the terminal blocks
   - Rx: Gray wire from the SpeedyBee UART1 port
   - Tx: White wire from the SpeedyBee UART1 port
  
-## Wiring photos
+## Electronics photos
 ![PXL_20250222_134715603 MP](https://github.com/user-attachments/assets/a85ecff7-47ac-4bce-8985-30a3200936d5)
 ![PXL_20250222_134739750 MP](https://github.com/user-attachments/assets/b3d780ec-2ce4-4de7-b0aa-1d4054046fc3)
 ![PXL_20250222_134858510](https://github.com/user-attachments/assets/d19454a8-f472-42db-ab58-b725b5b96f62)
