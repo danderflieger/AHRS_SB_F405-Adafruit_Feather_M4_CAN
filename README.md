@@ -36,7 +36,10 @@ The circuit board lists the various connections that go into the terminal blocks
 
 
 # Arduino Code (loaded on Adafruit Feather M4 CAN Express board)
-Start by following the Adafruit tutorial demonstrating how to configure the Arduino IDE for use with this board. The code is in C++, so you can safely skip the CircuitPython examples (unless you want to learn - in that case, go for it). Once you can program the board with some example code, go ahead and copy mine over.
+Start by following the Adafruit tutorial demonstrating how to configure the Arduino IDE for use with this board: 
+[https://learn.adafruit.com/adafruit-feather-m4-can-express/arduino-can-examples](https://learn.adafruit.com/adafruit-feather-m4-can-express/arduino-can-examples)
+
+The code is in C++, so you can safely skip the CircuitPython examples (unless you want to learn - in that case, go for it). Once you can program the board with some example code, go ahead and copy mine over.
 
 ## What to know about my code
 
