@@ -35,7 +35,10 @@ The circuit board lists the various connections that go into the terminal blocks
 
 
 # Arduino Code (loaded on Adafruit Feather M4 CAN Express board)
-## Need to know
+Start by following the Adafruit tutorial demonstrating how to configure the Arduino IDE for use with this board. The code is in C++, so you can safely skip the CircuitPython examples (unless you want to learn - in that case, go for it). Once you can program the board with some example code, go ahead and copy mine over.
+
+## What to know about my code
+
 
 There are 3 boolean values that can be set near the top of the code to determine what kinds of data you would like the Feather board to output:
 ```
@@ -47,5 +50,8 @@ bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format
 /*************************************/
 /*************************************/
 ```
-Depending on which type of output you want, you will want to change these boolean values. For example, my aEFIS app is a simple attitude indicator that runs on an Android device. It uses the USB port on the Feather board to plug into the Android device for passing data and for powering the Feather board (e.g. the phone powers the Feather when plugged into the USB ports of both - the phone should have an OTG cable on its end). Because both the Arduino Serial Monitor and aEFIS use the USB port on the Feather, you can't have both enabled at the same time or you will get wonky data. However, since the CAN transceiver on the Feather uses a separate set of wires for communication, one of the USB outputs can be used at the same time as the CAN interface. The code snipped above shows the latter (e.g. Serial output to the Arduino IDE and CAN output to a MakerPlane device).
+
+Depending on which type of output you want, you will want to change these boolean values. For example, my aEFIS app is a simple attitude indicator that runs on an Android device. It uses the USB port on the Feather board to plug into the Android device for passing data and for powering the Feather board (e.g. the phone powers the Feather when plugged into the USB ports of both - the phone may require an OTG cable on its end, but most USB-C devices auto-negotiate). 
+
+Because both the Arduino Serial Monitor (e.g. what you use to debug in the Arduino IDE) and aEFIS (e.g. my Android EFIS app) use the USB port on the Feather, you can't have both enabled at the same time or you will get wonky data. However, since the CAN transceiver on the Feather uses a separate set of wires for communication, one of the USB outputs can be used at the same time as the CAN interface. The code snipped above shows the latter (e.g. Serial output to the Arduino IDE and CAN output to a MakerPlane device).
 
