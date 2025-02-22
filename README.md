@@ -29,7 +29,7 @@ The circuit board lists the various connections that go into the terminal blocks
 ## Wiring photos
 ![PXL_20250222_134715603 MP](https://github.com/user-attachments/assets/a85ecff7-47ac-4bce-8985-30a3200936d5)
 ![PXL_20250222_134739750 MP](https://github.com/user-attachments/assets/b3d780ec-2ce4-4de7-b0aa-1d4054046fc3)
-![PXL_20250222_134858510](https://github.com/user-attachments/assets/26a9d433-79e1-4924-a768-76b4ebd2eeba)
+![PXL_20250222_134858510](https://github.com/user-attachments/assets/d19454a8-f472-42db-ab58-b725b5b96f62)
 ![PXL_20250222_134909562](https://github.com/user-attachments/assets/22c4abb7-ffc2-4c0b-bf04-01ef836c1d2b)
 ![PXL_20250222_134933491](https://github.com/user-attachments/assets/8207cdc5-3aff-4d63-bc1c-6408082a8326)
 
