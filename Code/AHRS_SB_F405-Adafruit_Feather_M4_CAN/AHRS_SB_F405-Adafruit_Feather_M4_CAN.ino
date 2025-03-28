@@ -20,20 +20,25 @@ CANSAME5x CAN;
 
 /*************************************/
 /******* Select output type **********/
-bool OUTPUT_SERIAL  = false;  // Output for the Arduino IDE's Serial Monitor - good for debugging
-bool OUTPUT_aEFIS   = true; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
-bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format 
+bool OUTPUT_SERIAL  = true;  // Output for the Arduino IDE's Serial Monitor - good for debugging
+const bool OUTPUT_aEFIS   = false; // Output for my aEFIS Android app - connect the feather's USB port to an OTG cable on an Android
+const bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format 
+const bool ENABLE_GPS     = true;
 /*************************************/
 /*************************************/
 
 
 /******* MakerPlane CAN-FiX IDs ********/
 // These values can be changed if you want to use another CAN standard
-int FIX_PITCH = 384;
-int FIX_ROLL = 385;
-int FIX_HEADING = 389;
-int FIX_GROUND_SPEED = 387;
-int nodeId = 0x82;
+const uint16_t FIX_PITCH = 384;
+const uint16_t FIX_ROLL = 385;
+const uint16_t FIX_HEADING = 389;
+const uint16_t FIX_GROUND_SPEED = 387;
+const uint16_t FIX_ALTITUDE = 121;    // Altitude MSL
+const uint16_t FIX_INDICATED_ALTITUDE = 388; 
+const uint16_t FIX_LATITUDE = 320;    // Latitude
+const uint16_t FIX_LONGITUDE = 321;   // Longitude
+const uint16_t NODE_ID = 0x82;
 /***************************************/
 
 
@@ -49,6 +54,23 @@ signed long lngRoll = 0;
 signed long lngGlobalHeading = 0;
 /**************************************/
 
+
+// GPS data
+float latitude = 0.0;
+float longitude = 0.0;
+float altitude_msl = 0.0;
+float ground_speed = 0.0;
+float gps_heading = 0.0;
+
+// GPS scaled values
+int32_t lngLatitude = 0;
+int32_t lngLongitude = 0;
+int32_t lngAltitude = 0;
+int32_t lngGroundSpeed = 0;
+
+// GPS status flags
+bool gps_fix_valid = false;
+unsigned long last_gps_update = 0;
 
 // Function to process incoming MAVLink messages
 void handleMavlinkMessage() {
@@ -77,13 +99,68 @@ void handleMavlinkMessage() {
         }
         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
         {
-          // mavlink_global_position_int_t global_position;
-          // mavlink_msg_global_position_int_decode(&msg, &global_position);
-          // global_heading = global_position.hdg;
-          // global_heading = global_heading / 10.0f;
-          
+          if (ENABLE_GPS) {
+            // Extract global position data
+            mavlink_global_position_int_t global_position;
+            mavlink_msg_global_position_int_decode(&msg, &global_position);
+            
+            // Update GPS values
+            // Convert from integer format (degrees * 1e7) to floating point
+            latitude = global_position.lat / 1e7;
+            longitude = global_position.lon / 1e7;
+            
+            // Convert altitude from mm to meters
+            altitude_msl = global_position.alt / 1000.0;
+            
+            // Convert ground speed from cm/s to m/s
+            ground_speed = sqrt(pow(global_position.vx, 2) + 
+                               pow(global_position.vy, 2)) / 100.0;
+            
+            // Get heading from MAVLink (0-35999 centidegrees, convert to 0-3599 decidegrees)
+            gps_heading = global_position.hdg / 10.0;
+            
+            // Scale values for CAN-FiX transmission
+            lngLatitude = latitude * 1e7;    // Standard format for CAN-FiX
+            lngLongitude = longitude * 1e7;  // Standard format for CAN-FiX
+            // lngAltitude = altitude_msl * 100;  // Altitude in centimeters
+            lngAltitude = altitude_msl * 3.28084;
+            lngGroundSpeed = ground_speed * 100; // Ground speed in cm/s
+            
+            // Mark GPS as valid and record time
+            gps_fix_valid = true;
+            last_gps_update = millis();
+            
+            // Send GPS data via enabled outputs
+            if (OUTPUT_CAN) {
+              sendCanMessage(FIX_LATITUDE, lngLatitude);
+              sendCanMessage(FIX_LONGITUDE, lngLongitude);
+              sendCanMessage(FIX_INDICATED_ALTITUDE, lngAltitude);
+              sendCanMessage(FIX_GROUND_SPEED, lngGroundSpeed);
+            }
+
+            if (OUTPUT_SERIAL) {
+              Serial.print("GPS: lat=");
+              Serial.print(latitude, 6);
+              Serial.print(", lon=");
+              Serial.print(longitude, 6);
+              Serial.print(", alt=");
+              Serial.print(altitude_msl, 1);
+              Serial.print(", spd=");
+              Serial.print(ground_speed, 1);
+              Serial.print(", hdg=");
+              Serial.println(gps_heading, 1);
+            }
+
+            if (OUTPUT_aEFIS) {
+              send_canfix_frame_to_aefis(FIX_LATITUDE, lngLatitude);
+              send_canfix_frame_to_aefis(FIX_LONGITUDE, lngLongitude);
+              send_canfix_frame_to_aefis(FIX_INDICATED_ALTITUDE, lngAltitude);
+              send_canfix_frame_to_aefis(FIX_GROUND_SPEED, lngGroundSpeed);
+            }
+          }
           break;
         }
+        
         default:
           // Ignore other messages or handle them as needed
           break;
@@ -126,7 +203,7 @@ void sendCanMessage(int messageType, int data) {
   byteData[3] = data >> 24;
 
   CAN.beginPacket(messageType);
-  CAN.write(nodeId);
+  CAN.write(NODE_ID);
   CAN.write(0x00);
   CAN.write(0x00);
   for (int i = 0; i<4; i++) {
