@@ -29,11 +29,14 @@ bool OUTPUT_CAN     = true;  // Output CAN data in MakerPlane CAN-FiX format
 
 /******* MakerPlane CAN-FiX IDs ********/
 // These values can be changed if you want to use another CAN standard
-int FIX_PITCH = 384;
-int FIX_ROLL = 385;
-int FIX_HEADING = 389;
-int FIX_GROUND_SPEED = 387;
-int nodeId = 0x82;
+const uint16_t FIX_PITCH = 384;
+const uint16_t FIX_ROLL = 385;
+const uint16_t FIX_HEADING = 389;
+// const uint16_t FIX_GROUND_SPEED = 453;
+const uint16_t FIX_INDICATED_AIRSPEED = 387;
+const uint16_t FIX_INDICATED_ALTITUDE = 388;
+
+const uint16_t nodeId = 0x82;
 /***************************************/
 
 
@@ -42,11 +45,16 @@ int nodeId = 0x82;
 float roll = 0.0;
 float pitch = 0.0;
 float yaw = 0.0;
+float ground_speed = 0.0;
+float gps_altitude = 0.0;
 int32_t global_heading = 0;
 
 signed long lngPitch = 0;
 signed long lngRoll = 0;
 signed long lngGlobalHeading = 0;
+unsigned long lngGroundSpeed = 0;
+signed long lngGpsAltitude = 0;
+
 /**************************************/
 
 
@@ -82,6 +90,14 @@ void handleMavlinkMessage() {
           // global_heading = global_position.hdg;
           // global_heading = global_heading / 10.0f;
           
+          
+          break;
+        }
+        case MAVLINK_MSG_ID_GPS_RAW_INT: {
+          // Handle GPS_RAW_INT message (older MAVLink versions)
+          mavlink_gps_raw_int_t gps_raw_int;
+          mavlink_msg_gps_raw_int_decode(&msg, &gps_raw_int);
+          gps_altitude = gps_raw_int.alt * 0.00328084; // Altitude in Feet //1000.0; // Altitude in meters (altitude is in millimeters in the raw message)
           break;
         }
         default:
@@ -92,19 +108,22 @@ void handleMavlinkMessage() {
       lngPitch = pitch * 100;
       lngRoll = roll * 100;
       lngGlobalHeading = getHeadingReciprocal( yaw * 10 );
+      lngGpsAltitude = gps_altitude;
       // long lngGlobalHeading = yaw * 10;
 
       if (OUTPUT_CAN) {
         sendCanMessage(FIX_PITCH, lngPitch);
         sendCanMessage(FIX_ROLL, lngRoll);
         sendCanMessage(FIX_HEADING, lngGlobalHeading);
+        sendCanMessage(FIX_INDICATED_ALTITUDE, lngGpsAltitude);
         // sendCanMessage(FIX_GROUND_SPEED, lngGroundSpeed);
       }
 
       if (OUTPUT_SERIAL) {
         Serial.print("pitch:"); Serial.print(lngPitch);
         Serial.print(",roll:"); Serial.print(lngRoll);
-        Serial.print(",heading:");Serial.println(lngGlobalHeading);
+        Serial.print(",heading:");Serial.print(lngGlobalHeading);
+        Serial.print(",altitude:");Serial.println(lngGpsAltitude);
 
       }
 
@@ -164,22 +183,25 @@ long getHeadingReciprocal(long heading) {
 
 
 void setup() {
+  
+  Serial.begin(115200);
+  
   // Prepare the USB port on the Adafruit board for use with either the
   // Arduino IDE or the aEFIS Android app, but not both.
   if (OUTPUT_SERIAL) {
     // For debugging on USB
-    Serial.begin(115200);
+    
     delay(1000);
     if (!Serial){
       // it's probably not starting, so don't try to send any messages over the Serial port anymore
-      OUTPUT_SERIAL = false;
+      // OUTPUT_SERIAL = false;
     } else {
       Serial.println ("Serial Started ...");
     }
     delay(100);
   } else if (OUTPUT_aEFIS) {
     // For debugging on USB
-    Serial.begin(115200);
+    // Serial.begin(115200);
     delay(1000);
     while (!Serial) {
       delay(100);
