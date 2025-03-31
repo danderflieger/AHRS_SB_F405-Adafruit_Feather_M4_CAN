@@ -85,11 +85,11 @@ void handleMavlinkMessage() {
         }
         case MAVLINK_MSG_ID_GLOBAL_POSITION_INT:
         {
-          // mavlink_global_position_int_t global_position;
-          // mavlink_msg_global_position_int_decode(&msg, &global_position);
+          mavlink_global_position_int_t global_position;
+          mavlink_msg_global_position_int_decode(&msg, &global_position);
           // global_heading = global_position.hdg;
           // global_heading = global_heading / 10.0f;
-          
+          gps_altitude = (global_position.alt * 0.00328084);
           
           break;
         }
@@ -97,7 +97,8 @@ void handleMavlinkMessage() {
           // Handle GPS_RAW_INT message (older MAVLink versions)
           mavlink_gps_raw_int_t gps_raw_int;
           mavlink_msg_gps_raw_int_decode(&msg, &gps_raw_int);
-          gps_altitude = gps_raw_int.alt * 0.00328084; // Altitude in Feet //1000.0; // Altitude in meters (altitude is in millimeters in the raw message)
+          ground_speed = gps_raw_int.vel;
+          
           break;
         }
         default:
@@ -109,6 +110,8 @@ void handleMavlinkMessage() {
       lngRoll = roll * 100;
       lngGlobalHeading = getHeadingReciprocal( yaw * 10 );
       lngGpsAltitude = gps_altitude;
+      lngGroundSpeed = (ground_speed * 0.0194384) * 10;
+      
       // long lngGlobalHeading = yaw * 10;
 
       if (OUTPUT_CAN) {
@@ -116,14 +119,15 @@ void handleMavlinkMessage() {
         sendCanMessage(FIX_ROLL, lngRoll);
         sendCanMessage(FIX_HEADING, lngGlobalHeading);
         sendCanMessage(FIX_INDICATED_ALTITUDE, lngGpsAltitude);
-        // sendCanMessage(FIX_GROUND_SPEED, lngGroundSpeed);
+        sendCanMessage(FIX_INDICATED_AIRSPEED, lngGroundSpeed);
       }
 
       if (OUTPUT_SERIAL) {
         Serial.print("pitch:"); Serial.print(lngPitch);
         Serial.print(",roll:"); Serial.print(lngRoll);
         Serial.print(",heading:");Serial.print(lngGlobalHeading);
-        Serial.print(",altitude:");Serial.println(lngGpsAltitude);
+        Serial.print(",altitude:");Serial.print(lngGpsAltitude);
+        Serial.print(",speed:");Serial.println(lngGroundSpeed);
 
       }
 
@@ -131,6 +135,9 @@ void handleMavlinkMessage() {
         send_canfix_frame_to_aefis(FIX_PITCH, lngPitch);
         send_canfix_frame_to_aefis(FIX_ROLL, lngRoll);
         send_canfix_frame_to_aefis(FIX_HEADING, lngGlobalHeading);
+        send_canfix_frame_to_aefis(FIX_INDICATED_ALTITUDE, lngGpsAltitude);
+        send_canfix_frame_to_aefis(FIX_INDICATED_AIRSPEED, lngGroundSpeed);
+
       }
     }
   }
